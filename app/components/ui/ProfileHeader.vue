@@ -2,7 +2,9 @@
 defineProps<{
   avatar: string;
   name: string;
-  bio: string;
+  poem: string;
+  source: string;
+  description: string;
 }>();
 </script>
 
@@ -39,9 +41,19 @@ defineProps<{
         {{ name }}
       </h1>
 
-      <p class="text-lg md:text-xl text-neutral-400 font-light leading-relaxed">
-        {{ bio }}
-      </p>
+      <div>
+        <p class="text-lg md:text-xl text-neutral-400 font-light leading-relaxed">
+          "{{ poem }}"
+        </p>
+        <p
+          class="text-lg md:text-xl text-neutral-400 font-light leading-relaxed text-right"
+        >
+          —— {{ source }}
+        </p>
+        <p class="text-neutral-400 font-light leading-relaxed text-sm">
+          {{ description }}
+        </p>
+      </div>
 
       <!-- 社交图标/标签 -->
       <div class="flex flex-wrap justify-center md:justify-start gap-3 pt-2">

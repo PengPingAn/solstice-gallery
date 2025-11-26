@@ -176,7 +176,9 @@ const allPhoto = {
       <ProfileHeader
         avatar="https://api.dicebear.com/7.x/notionists/svg?seed=Innei"
         name="PEACE-SPACE"
-        bio="记录光影与代码的瞬间。本页面完全由 Vue 3 组件构建，图片使用 Canvas 渲染以保护版权。"
+        poem="此情可待成追忆，只是当时已惘然。"
+        source="李商隐《锦瑟》"
+        description="每一张照片，都是时光的标本，记忆的锚点。"
       />
 
       <!-- 分割线 -->
