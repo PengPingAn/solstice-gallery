@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  --background: #f7f4f4;
+  --background-head: #eeeded97;
+  --font-color: #000000;
+  --album-bg: #e7e0e0;
+}
+
+.dark {
+  --background: rgb(29, 29, 29);
+  --font-color: #ffffff;
+  --background-head: #2f2e2e97;
+  --album-bg: #151515;
+}
