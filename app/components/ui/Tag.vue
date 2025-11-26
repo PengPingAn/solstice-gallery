@@ -1,7 +1,7 @@
 <template>
   <span
     :class="[
-      'inline-block font-medium backdrop-blur-sm text-black dark:text-white dark:bg-[rgba(255,255,255,0.2)] bg-[#099fa130]',
+      'inline-block font-medium backdrop-blur-sm text-black dark:text-white dark:bg-[rgba(255,255,255,0.2)] bg-[#099fa130] ',
       sizeClass,
       radiusClass,
       darkClass,
@@ -11,7 +11,7 @@
       color: textColor,
       opacity: opacity,
     }"
-    class="mr-1"
+    class="mr-1 break-words mt-2 max-w-full"
   >
     <slot />
   </span>

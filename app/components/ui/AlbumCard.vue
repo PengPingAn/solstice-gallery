@@ -62,7 +62,7 @@
     <div class="album-info p-2 md:p-4">
       <h3
         v-if="props.title"
-        class="album-title font-medium text-sm tracking-wide text-[var(--font-color)]"
+        class="album-title font-medium text-sm tracking-wide text-[var(--font-color)] break-words"
       >
         {{ title }}
       </h3>

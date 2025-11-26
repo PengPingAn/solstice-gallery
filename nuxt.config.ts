@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
+      title: "SOLSTICE-GALLERY",
       meta: [{ name: "referrer", content: "no-referrer" }],
       link: [
         {
