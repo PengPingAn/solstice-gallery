@@ -5,7 +5,7 @@
   >
     <!-- 相册堆叠效果容器 -->
     <div
-      class="album-stack-container relative h-64 w-full p-2 md:p-4 transform transition-all duration-300 group hover:scale-[1.02] hover:translate-y-[-4px] hover:shadow-lg"
+      class="album-stack-container relative h-64 w-full p-2 md:p-4 transform transition-all duration-300 group hover:scale-[1.02] hover:translate-y-[-4px]"
     >
       <!-- 底层堆叠卡片 -->
       <div
@@ -22,7 +22,10 @@
       </div>
 
       <!-- 顶层封面图片区域 -->
-      <div class="album-cover-container absolute inset-0 z-30 p-2 cursor-pointer">
+      <div
+        class="album-cover-container absolute inset-0 z-30 p-2 cursor-pointer"
+        @click="jumpPhoto"
+      >
         <!-- Canvas 渲染封面图片 -->
         <canvas
           ref="coverCanvas"
@@ -79,12 +82,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from "vue";
+import { ref, onMounted, computed, nextTick, defineEmits } from "vue";
 
 // ========== 响应式状态定义 ==========
 const coverCanvas = ref(null);
 const isReady = ref(false);
 const cardVisible = ref(false);
+const emit = defineEmits("jumpPhoto");
 
 // ========== Props 定义 ==========
 const props = defineProps({
@@ -222,6 +226,11 @@ const initializeImageLoading = () => {
   nextTick(() => {
     loadAndDrawImageWithRetry();
   });
+};
+
+const jumpPhoto = () => {
+  console.log("11111");
+  emit("jumpPhoto");
 };
 
 // ========== 生命周期钩子 ==========

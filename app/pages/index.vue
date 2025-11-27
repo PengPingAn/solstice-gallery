@@ -2,6 +2,7 @@
 import { ref, onBeforeMount } from "vue";
 import { useHead } from "#app";
 
+const router = useRouter();
 const isDark = computed({
   get() {
     return colorMode.value === "dark";
@@ -17,44 +18,6 @@ function toggleTheme() {
   colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
 }
 
-const photos = ref([
-  {
-    id: 1,
-    url:
-      "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1000&auto=format&fit=crop",
-    title: "Deep Space",
-    meta: "SONY A7R4",
-  },
-  {
-    id: 2,
-    url:
-      "https://images.unsplash.com/photo-1535498730771-e735b998cd64?q=80&w=1000&auto=format&fit=crop",
-    title: "Urban Night",
-    meta: "FUJI X-T4",
-  },
-  {
-    id: 3,
-    url:
-      "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000&auto=format&fit=crop",
-    title: "Neon Dreams",
-    meta: "LEICA Q2",
-  },
-  {
-    id: 4,
-    url:
-      "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1000&auto=format&fit=crop",
-    title: "Moody Clouds",
-    meta: "IPHONE 15 PRO",
-  },
-  {
-    id: 5,
-    url:
-      "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop",
-    title: "Mountain View",
-    meta: "CANON R5",
-  },
-  // ... 更多图片
-]);
 const testimonials = [
   {
     title: "测试图片1",
@@ -111,15 +74,14 @@ const testimonials = [
     ],
   },
 ];
-const allPhotoData = [
-  "https://res.liuyuyang.net/thrive/album/68f4d1dd60b2036e8a43ed51.JPG",
-  "https://res.liuyuyang.net/thrive/album/68f4ce2960b2036e8a43ed46.JPG",
-  "https://res.liuyuyang.net/thrive/album/68f4d70360b2036e8a43ed5d.JPG",
-];
 const allPhoto = {
   title: "ALL",
   tags: ["ALL"],
   urlData: "https://res.liuyuyang.net/thrive/album/68f4d70e60b2036e8a43ed5f.JPG",
+};
+
+const jumpPhoto = (val: any) => {
+  router.push(`/gallery/1`);
 };
 </script>
 
@@ -195,6 +157,7 @@ const allPhoto = {
               :photo="allPhoto.urlData"
               :tags="allPhoto.tags"
               :title="allPhoto.title"
+              @jumpPhoto="jumpPhoto"
             ></AlbumCard>
           </div>
           <template v-for="value in testimonials">
@@ -203,6 +166,7 @@ const allPhoto = {
                 :photo="value.urlData[0]"
                 :tags="value.tags"
                 :title="value.title"
+                @jumpPhoto="jumpPhoto"
               ></AlbumCard>
             </div>
           </template>
@@ -221,32 +185,3 @@ const allPhoto = {
     </footer>
   </div>
 </template>
-
-<style>
-/* 全局样式重置与字体设置 */
-body {
-  margin: 0;
-  background-color: #050505;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-/* 在全局样式中加上 */
-html {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* 自定义滚动条 */
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-::-webkit-scrollbar-thumb {
-  background: #7e7d7d;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #404040;
-}
-</style>

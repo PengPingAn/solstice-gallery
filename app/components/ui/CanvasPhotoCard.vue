@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="containerRef"
-    class="relative group rounded-xl overflow-hidden bg-[#111] mb-6 select-none transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.02]"
+    class="relative m-1 group overflow-hidden bg-[#111] select-none transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
     :class="{
       'opacity-0 translate-y-8': !isVisible,
       'opacity-100 translate-y-0': isVisible,

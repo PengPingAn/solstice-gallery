@@ -1,0 +1,27 @@
+/* 全局样式重置与字体设置 */
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* 在全局样式中加上 */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  scrollbar-color: #d1d5db;
+  scrollbar-width: thin;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: #7e7d7d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
