@@ -171,6 +171,25 @@ const columns = computed(() => {
   return cols;
 });
 
+// 父组件计算行优先的布局
+const rowOrderedItems = computed(() => {
+  if (!columns.value || columns.value.length === 0) return [];
+  const maxLength = Math.max(...columns.value.map((col) => col.length));
+  const ordered: PhotoItem[][] = [];
+
+  // 按行遍历每列
+  for (let row = 0; row < maxLength; row++) {
+    const currentRow: PhotoItem[] = [];
+    for (let col = 0; col < columns.value.length; col++) {
+      const item = columns.value[col][row];
+      if (item) currentRow.push(item);
+    }
+    ordered.push(currentRow);
+  }
+
+  return ordered; // 每个元素是这一行的所有 item
+});
+
 // 视口统计相关功能
 const visibleDates = ref<Set<string>>(new Set());
 const visibleAddresses = ref<Set<string>>(new Set());
@@ -378,16 +397,13 @@ const initializeComponent = () => {
 
   // 等待DOM完全渲染
   nextTick(() => {
-    // 设置延迟确保所有图片已加载
-    setTimeout(() => {
-      isReady.value = true;
+    isReady.value = true;
 
-      // 再次等待DOM更新
-      nextTick(() => {
-        // 初始统计
-        updateVisibleStats();
-      });
-    }, 300);
+    // 再次等待DOM更新
+    nextTick(() => {
+      // 初始统计
+      updateVisibleStats();
+    });
   });
 };
 
@@ -509,23 +525,25 @@ watch([dateRangeText, addressText], () => {
           />
         </div>
         <!-- 第一列的图片 -->
-        <div
-          v-for="(item, itemIndex) in columns[0]"
-          :key="item.id"
-          :data-photo-card="true"
-          :data-id="item.id"
-          :data-date="item.date"
-          :data-address="item.address"
-        >
-          <CanvasPhotoCard
-            :src="item.url"
-            :title="item.title"
-            :meta="item.meta"
-            :delay="itemIndex * 50"
-            :address="item.address"
-            :date="item.date"
-          />
-        </div>
+        <transition-group name="gallery" tag="div" class="gallery-grid">
+          <div
+            v-for="(item, itemIndex) in columns[0]"
+            :key="item.id"
+            :data-photo-card="true"
+            :data-id="item.id"
+            :data-date="item.date"
+            :data-address="item.address"
+          >
+            <CanvasPhotoCard
+              :src="item.url"
+              :title="item.title"
+              :meta="item.meta"
+              :delay="itemIndex * 50"
+              :address="item.address"
+              :date="item.date"
+            />
+          </div>
+        </transition-group>
       </div>
 
       <!-- 其他列正常显示 -->
@@ -571,7 +589,7 @@ watch([dateRangeText, addressText], () => {
 
 .stats-enter-from {
   opacity: 0;
-  transform: translateX(-20px) translateY(-20px) scale(0.8);
+  transform: translateX(-40px) translateY(-20px) scale(0.8);
 }
 
 .stats-enter-to {
@@ -586,6 +604,24 @@ watch([dateRangeText, addressText], () => {
 
 .stats-leave-to {
   opacity: 0;
-  transform: translateX(-20px) translateY(-20px) scale(0.8);
+  transform: translateX(-40px) translateY(-20px) scale(0.8);
+}
+
+.gallery-item {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+.gallery-enter-active,
+.gallery-leave-active {
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.gallery-enter-from,
+.gallery-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+.gallery-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 </style>

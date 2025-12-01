@@ -108,13 +108,28 @@ function toggleTheme() {
                 @click="toggleTheme"
               />
             </UTooltip>
+            <UTooltip text="GitHub">
+              <UButton
+                icon="uil:github-alt"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                class="rounded-full"
+                to="https://github.com/PengPingAn/solstice-gallery"
+                target="_blank"
+              />
+            </UTooltip>
           </div>
         </Tag>
       </div>
-    </div>
-    <div class="flex items-center justify-center gap-2 p-1 text-sm">
-      <UIcon name="material-symbols:calendar-month-outline-rounded"></UIcon>
-      Last Time 2025-11-28
+      <div class="p-2">
+        <Tag size="md" radius="full">
+          <div class="flex items-center justify-center gap-2 text-sm">
+            <UIcon name="material-symbols:calendar-month-outline-rounded"></UIcon> Last
+            Time 2025-11-28
+          </div>
+        </Tag>
+      </div>
     </div>
   </div>
 </template>
