@@ -34,7 +34,21 @@ const isReady = ref(false);
 const profileCardRef = ref<HTMLElement | null>(null);
 const showStats = ref(false);
 
-// 保持原有的列数算法不变
+const isMobile = ref(false);
+const MOBILE_BREAKPOINT = 1000; // 最小分辨率，小于这个分辨率就需要将个人信息单独放一行
+
+// 检查是否为移动端
+const checkMobile = () => {
+  isMobile.value = windowWidth.value < MOBILE_BREAKPOINT;
+};
+
+// 更新窗口宽度和移动端状态
+const updateWidth = () => {
+  windowWidth.value = window.innerWidth;
+  checkMobile();
+};
+
+// 保持原有的列数算法不变，但针对移动端调整
 const columnCount = computed(() => {
   if (windowWidth.value <= 0) return 5;
   const containerWidth = windowWidth.value;
@@ -51,7 +65,7 @@ const columnCount = computed(() => {
     maxColumnWidth: 300,
 
     // 列数限制
-    minColumns: 1,
+    minColumns: 2,
     maxColumns: 8,
 
     // 设备特定调整
@@ -78,7 +92,7 @@ const columnCount = computed(() => {
       (availableWidth + config.gapSize) / (config.idealColumnWidth + config.gapSize)
     );
   }
-  console.log(baseColumns);
+
   // 应用列数限制
   let calculatedColumns = Math.max(
     config.minColumns,
@@ -147,47 +161,35 @@ const columnCount = computed(() => {
     }
   }
 
-  console.log("计算列数:", calculatedColumns, "窗口宽度:", containerWidth);
   return calculatedColumns;
 });
 
-// 将数据分配到不同的列
-const columns = computed(() => {
-  if (!columnCount.value || columnCount.value <= 0) {
+// 根据设备类型计算列数据
+const deviceColumns = computed(() => {
+  const count = columnCount.value;
+
+  if (!count || count <= 0 || !props.items || !Array.isArray(props.items)) {
     return [];
   }
 
-  const cols: PhotoItem[][] = Array.from({ length: columnCount.value }, () => []);
-
-  if (props.items && Array.isArray(props.items)) {
+  // 如果是移动端，需要特殊处理：将个人信息卡片单独放一行
+  if (isMobile.value) {
+    // 移动端：将所有图片均匀分配到列中
+    const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
     props.items.forEach((item, index) => {
-      const colIndex = index % columnCount.value;
-      if (cols[colIndex]) {
-        cols[colIndex].push(item);
-      }
+      const colIndex = index % count;
+      cols[colIndex].push(item);
     });
+    return cols;
+  } else {
+    // 桌面端：保持原有逻辑，第一列包含个人信息卡片
+    const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
+    props.items.forEach((item, index) => {
+      const colIndex = index % count;
+      cols[colIndex].push(item);
+    });
+    return cols;
   }
-
-  return cols;
-});
-
-// 父组件计算行优先的布局
-const rowOrderedItems = computed(() => {
-  if (!columns.value || columns.value.length === 0) return [];
-  const maxLength = Math.max(...columns.value.map((col) => col.length));
-  const ordered: PhotoItem[][] = [];
-
-  // 按行遍历每列
-  for (let row = 0; row < maxLength; row++) {
-    const currentRow: PhotoItem[] = [];
-    for (let col = 0; col < columns.value.length; col++) {
-      const item = columns.value[col][row];
-      if (item) currentRow.push(item);
-    }
-    ordered.push(currentRow);
-  }
-
-  return ordered; // 每个元素是这一行的所有 item
 });
 
 // 视口统计相关功能
@@ -386,11 +388,6 @@ const debouncedUpdate = debounce(() => {
   checkProfileCardVisibility();
 }, 100);
 
-// 更新窗口宽度
-const updateWidth = () => {
-  windowWidth.value = window.innerWidth;
-};
-
 // 初始化组件
 const initializeComponent = () => {
   updateWidth();
@@ -416,6 +413,7 @@ onMounted(() => {
 
 onBeforeMount(() => {
   windowWidth.value = window.innerWidth;
+  checkMobile();
 });
 
 onUnmounted(() => {
@@ -507,16 +505,49 @@ watch([dateRangeText, addressText], () => {
           </svg>
           <span>{{ addressText }}</span>
         </div>
-
-        <!-- <div class="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-100">
-          显示 {{ visibleDates.size }} 个日期 · {{ visibleAddresses.size }} 个地点
-        </div> -->
       </div>
     </Transition>
 
-    <div class="flex w-full items-start" v-if="isReady">
+    <!-- 移动端布局 -->
+    <div v-if="isReady && isMobile" class="w-full">
+      <!-- 个人信息卡片单独一行 -->
+      <div ref="profileCardRef" class="personal-info-card h-[17rem] mx-1 mb-4">
+        <ProfileCard
+          avatar="https://api.dicebear.com/7.x/notionists/svg?seed=Innei"
+          name="PEACE-SPACE"
+        />
+      </div>
+
+      <!-- 图片列（根据columnCount计算，移动端通常是2列） -->
+      <div class="flex w-full">
+        <template v-for="(col, colIndex) in deviceColumns" :key="colIndex">
+          <div class="flex-1 flex flex-col">
+            <div
+              v-for="(item, itemIndex) in col"
+              :key="item.id"
+              :data-photo-card="true"
+              :data-id="item.id"
+              :data-date="item.date"
+              :data-address="item.address"
+            >
+              <CanvasPhotoCard
+                :src="item.url"
+                :title="item.title"
+                :meta="item.meta"
+                :delay="colIndex * 100 + itemIndex * 50"
+                :address="item.address"
+                :date="item.date"
+              />
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- 桌面端布局 -->
+    <div v-else-if="isReady && !isMobile" class="flex w-full items-start">
       <!-- 第一列特殊处理 -->
-      <div class="flex-1 flex flex-col" v-if="columns.length > 0">
+      <div class="flex-1 flex flex-col" v-if="deviceColumns.length > 0">
         <!-- 个人信息格子 -->
         <div ref="profileCardRef" class="personal-info-card h-[17rem] mx-1">
           <ProfileCard
@@ -527,7 +558,7 @@ watch([dateRangeText, addressText], () => {
         <!-- 第一列的图片 -->
         <transition-group name="gallery" tag="div" class="gallery-grid">
           <div
-            v-for="(item, itemIndex) in columns[0]"
+            v-for="(item, itemIndex) in deviceColumns[0]"
             :key="item.id"
             :data-photo-card="true"
             :data-id="item.id"
@@ -547,9 +578,9 @@ watch([dateRangeText, addressText], () => {
       </div>
 
       <!-- 其他列正常显示 -->
-      <template v-if="columns.length > 1">
+      <template v-if="deviceColumns.length > 1">
         <div
-          v-for="(col, colIndex) in columns.slice(1)"
+          v-for="(col, colIndex) in deviceColumns.slice(1)"
           :key="colIndex + 1"
           class="flex-1 flex flex-col"
         >
@@ -623,5 +654,13 @@ watch([dateRangeText, addressText], () => {
 .gallery-enter-to {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .personal-info-card {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
 }
 </style>
