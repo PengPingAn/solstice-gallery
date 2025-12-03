@@ -346,18 +346,23 @@ const isElementInViewport = (el: HTMLElement): boolean => {
 
 // 检查个人信息卡片是否离开视口
 const checkProfileCardVisibility = () => {
-  if (!profileCardRef.value) return;
+  nextTick(() => {
+    // 确保在 DOM 更新完成后再执行
+    setTimeout(() => {
+      if (!profileCardRef.value) return;
 
-  const rect = profileCardRef.value.getBoundingClientRect();
-  // 如果个人信息卡片完全离开视口顶部（加上50px的缓冲距离）
-  const isProfileCardOutOfView = rect.bottom < -100;
+      const rect = profileCardRef.value.getBoundingClientRect();
 
-  // 只有当个人信息卡片离开视口且统计信息不为空时才显示
-  if (isProfileCardOutOfView && (dateRangeText.value || addressText.value)) {
-    showStats.value = true;
-  } else {
-    showStats.value = false;
-  }
+      // 如果个人信息卡片完全离开视口顶部（加上50px的缓冲距离）
+      const isProfileCardOutOfView = rect.bottom < -100;
+
+      if (isProfileCardOutOfView && (dateRangeText.value || addressText.value)) {
+        showStats.value = true;
+      } else {
+        showStats.value = false;
+      }
+    }, 0); // 延迟，确保页面完全渲染
+  });
 };
 
 // 手动更新可见统计
@@ -383,7 +388,9 @@ const updateVisibleStats = () => {
   visibleAddresses.value = newVisibleAddresses;
 
   // 更新统计信息后检查是否显示
+  // setTimeout(() => {
   checkProfileCardVisibility();
+  // }, 300);
 };
 
 // 防抖函数
@@ -469,7 +476,7 @@ watch(columnCount, () => {
 
 // 监听统计文本变化，检查是否显示
 watch([dateRangeText, addressText], () => {
-  checkProfileCardVisibility();
+  // checkProfileCardVisibility();
 });
 </script>
 
@@ -626,12 +633,6 @@ watch([dateRangeText, addressText], () => {
           </div>
         </div>
       </template>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-else class="flex justify-center items-center h-64">
-      <!-- <div class="text-gray-500">加载中...</div> -->
-      <Loading></Loading>
     </div>
   </div>
 </template>

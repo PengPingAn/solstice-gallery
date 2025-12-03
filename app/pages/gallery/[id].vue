@@ -1,14 +1,7 @@
 <template>
   <div>
+    <!-- <Loading></Loading> -->
     <MasonryGrid :items="photos" @image-click="openImageDetail" />
-    <!-- 
-    <PhoneView
-      :images="photos"
-      :initial-index="currentImageIndex"
-      :show="showDetail"
-      @update:show="showDetail = $event"
-      @close="closeDetail"
-    /> -->
 
     <UModal
       :fullscreen="true"
@@ -16,13 +9,12 @@
       close-icon="i-lucide-arrow-right"
     >
       <template #content>
-        <!-- <PhoneView2 :images="photos"></PhoneView2> -->
-        <PhoneView2
+        <PhoneView
           :images="photos"
           :initial-index="currentImageIndex"
           @close="closeDetail"
         >
-        </PhoneView2>
+        </PhoneView>
       </template>
     </UModal>
   </div>
@@ -311,6 +303,14 @@ const photos = ref([
     meta: "NIKON Zf",
     date: "2024-05-06",
     address: "成都",
+  },
+  {
+    id: 33,
+    url: "https://w.wallhaven.cc/full/vp/wallhaven-vpp2g5.png",
+    title: "Superman",
+    meta: "NIKON Zf",
+    date: "2024-01-06",
+    address: "美国",
   },
 ]);
 // 获取路由参数
