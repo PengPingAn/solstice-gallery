@@ -2,7 +2,7 @@
   <div class="loader"></div>
 </template>
 
-<style lang="" scoped>
+<style lang="css" scoped>
 /* From Uiverse.io by Shoh2008 */
 .loader {
   width: 64px;

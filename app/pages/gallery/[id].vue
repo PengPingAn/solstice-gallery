@@ -1,10 +1,34 @@
 <template>
   <div>
-    <MasonryGrid :items="photos" />
+    <MasonryGrid :items="photos" @image-click="openImageDetail" />
+    <!-- 
+    <PhoneView
+      :images="photos"
+      :initial-index="currentImageIndex"
+      :show="showDetail"
+      @update:show="showDetail = $event"
+      @close="closeDetail"
+    /> -->
+
+    <UModal
+      :fullscreen="true"
+      v-model:open="showDetail"
+      close-icon="i-lucide-arrow-right"
+    >
+      <template #content>
+        <!-- <PhoneView2 :images="photos"></PhoneView2> -->
+        <PhoneView2
+          :images="photos"
+          :initial-index="currentImageIndex"
+          @close="closeDetail"
+        >
+        </PhoneView2>
+      </template>
+    </UModal>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRoute } from "vue-router";
 import { ref } from "vue";
 
@@ -292,4 +316,20 @@ const photos = ref([
 // 获取路由参数
 const route = useRoute();
 const id = route.params.id; // 获取动态参数
+
+const currentImageIndex = ref<number>(0);
+// 详情组件相关
+const showDetail = ref(false);
+
+// 打开详情
+const openImageDetail = (index: number) => {
+  console.log("------------", index);
+  currentImageIndex.value = index;
+  showDetail.value = true;
+};
+
+// 关闭详情
+const closeDetail = () => {
+  showDetail.value = false;
+};
 </script>

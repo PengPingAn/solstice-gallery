@@ -164,6 +164,16 @@ const columnCount = computed(() => {
   return calculatedColumns;
 });
 
+const columnStartIndex = computed(() => {
+  const arr = [];
+  let total = 0;
+  for (const col of deviceColumns.value) {
+    arr.push(total);
+    total += col.length;
+  }
+  return arr;
+});
+
 // 根据设备类型计算列数据
 const deviceColumns = computed(() => {
   const count = columnCount.value;
@@ -177,6 +187,7 @@ const deviceColumns = computed(() => {
     // 移动端：将所有图片均匀分配到列中
     const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
     props.items.forEach((item, index) => {
+      item._index = index;
       const colIndex = index % count;
       cols[colIndex].push(item);
     });
@@ -185,6 +196,7 @@ const deviceColumns = computed(() => {
     // 桌面端：保持原有逻辑，第一列包含个人信息卡片
     const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
     props.items.forEach((item, index) => {
+      item._index = index;
       const colIndex = index % count;
       cols[colIndex].push(item);
     });
@@ -404,6 +416,18 @@ const initializeComponent = () => {
   });
 };
 
+const showDetail = ref(false);
+const currentImageIndex = ref(0);
+const openImageDetail = (index) => {
+  currentImageIndex.value = index;
+  showDetail.value = true;
+};
+
+// 关闭详情
+const handleCloseDetail = () => {
+  showDetail.value = false;
+};
+
 onMounted(() => {
   initializeComponent();
   window.addEventListener("resize", updateWidth);
@@ -455,18 +479,14 @@ watch([dateRangeText, addressText], () => {
     <Transition name="stats">
       <div
         v-if="(dateRangeText || addressText) && showStats"
-        class="fixed top-4 left-4 z-50 lg:top-6 lg:left-6 flex flex-col gap-1 bg-black/40 backdrop-blur-3xl rounded-xl border border-white/10 px-4 py-2 pb-4 shadow-2xl"
-        :class="{
-          'stats-enter': showStats,
-          'stats-leave': !showStats,
-        }"
+        class="fixed top-4 left-4 z-50 lg:top-6 lg:left-6 flex flex-col gap-1 bg-black/40 backdrop-blur-3xl rounded-xl border border-white/10 px-4 py-2 pb-4 shadow-2xl max-sm:top-2 max-sm:left-2 max-sm:px-3 max-sm:py-1 max-sm:pb-3 max-sm:backdrop-blur-xl max-sm:rounded-lg"
       >
         <div
           v-if="dateRangeText"
-          class="flex gap-1 items-center text-white text-3xl font-black leading-normal tracking-wide"
+          class="flex gap-1 items-center text-white text-3xl font-black leading-normal tracking-wide max-sm:text-lg max-sm:font-semibold max-sm:leading-tight max-sm:tracking-normal"
         >
           <svg
-            class="w-6 h-6 mr-1 flex-shrink-0"
+            class="w-6 h-6 mr-1 flex-shrink-0 max-sm:w-4 max-sm:h-4 max-sm:mr-0.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -482,10 +502,10 @@ watch([dateRangeText, addressText], () => {
         </div>
         <div
           v-if="addressText"
-          class="flex gap-1 items-center text-white text-xl font-black leading-normal tracking-wide"
+          class="flex gap-1 items-center text-white text-xl font-black leading-normal tracking-wide max-sm:text-sm max-sm:font-medium max-sm:leading-tight max-sm:tracking-normal"
         >
           <svg
-            class="w-5 h-5 mr-1 mt-0.5 flex-shrink-0"
+            class="w-5 h-5 mr-1 mt-0.5 flex-shrink-0 max-sm:w-3 max-sm:h-3 max-sm:mr-0.5 max-sm:mt-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -537,6 +557,7 @@ watch([dateRangeText, addressText], () => {
                 :delay="colIndex * 100 + itemIndex * 50"
                 :address="item.address"
                 :date="item.date"
+                @click="$emit('image-click', item._index)"
               />
             </div>
           </div>
@@ -572,6 +593,7 @@ watch([dateRangeText, addressText], () => {
               :delay="itemIndex * 50"
               :address="item.address"
               :date="item.date"
+              @click="$emit('image-click', item._index)"
             />
           </div>
         </transition-group>
@@ -599,6 +621,7 @@ watch([dateRangeText, addressText], () => {
               :delay="(colIndex + 1) * 100 + itemIndex * 50"
               :address="item.address"
               :date="item.date"
+              @click="$emit('image-click', item._index)"
             />
           </div>
         </div>
@@ -607,7 +630,8 @@ watch([dateRangeText, addressText], () => {
 
     <!-- 加载状态 -->
     <div v-else class="flex justify-center items-center h-64">
-      <div class="text-gray-500">加载中...</div>
+      <!-- <div class="text-gray-500">加载中...</div> -->
+      <Loading></Loading>
     </div>
   </div>
 </template>

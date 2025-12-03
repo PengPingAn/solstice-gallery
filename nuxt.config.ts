@@ -55,4 +55,7 @@ export default defineNuxtConfig({
     fallback: "dark", // SSR fallback 也是 dark
     storageKey: "cframe-color-mode",
   },
+  ui: {
+    fonts: false, // 完全禁用 @nuxt/fonts 模块
+  },
 });
