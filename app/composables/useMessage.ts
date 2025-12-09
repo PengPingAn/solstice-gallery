@@ -1,5 +1,6 @@
 import { createApp, h, reactive, watchEffect } from "vue";
 import Message from "~/components/MessageContainer.vue";
+import type { App } from "vue";
 
 interface MessageOptions {
   text: string;
@@ -15,7 +16,7 @@ interface MessageItem {
   top: number;
   visible: boolean;
   element?: HTMLDivElement;
-  app?: any;
+  app?: App<Element>;
 }
 
 class MessageManager {
