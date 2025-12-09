@@ -5,6 +5,7 @@
 
     <UModal
       :fullscreen="true"
+      :dismissible="false"
       v-model:open="showDetail"
       close-icon="i-lucide-arrow-right"
     >
@@ -12,7 +13,7 @@
         <PhoneView
           :images="photos"
           :initial-index="currentImageIndex"
-          @close="closeDetail"
+          @closePhoneView="closeDetail"
         >
         </PhoneView>
       </template>

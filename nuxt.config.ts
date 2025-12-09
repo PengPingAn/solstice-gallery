@@ -45,7 +45,7 @@ export default defineNuxtConfig({
   components: [
     { path: "~/components", pathPrefix: false }, // 递归扫描
   ],
-  modules: ["@nuxt/ui", "@nuxt/image"],
+  modules: ["@nuxt/ui", "@nuxt/image", "@pinia/nuxt"],
   css: ["~/assets/css/tailwind.css", "~/assets/css/style.css"],
   vite: {
     // 你可以在这里进行自定义配置

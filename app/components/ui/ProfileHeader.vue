@@ -37,9 +37,23 @@ defineProps<{
 
     <!-- 文本区域 -->
     <div class="text-center md:text-left pt-2 space-y-4 max-w-2xl">
-      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-[var(--font-color)]">
-        {{ name }}
-      </h1>
+      <div class="flex items-center gap-2">
+        <h1
+          class="text-3xl md:text-4xl font-bold tracking-tight text-[var(--font-color)]"
+        >
+          {{ name }}
+        </h1>
+        <div>
+          <img
+            height="40"
+            loading="lazy"
+            width="40"
+            src="https://registry.npmmirror.com/@lobehub/fluent-emoji-anim-1/latest/files/assets/1f44b.webp"
+            style="flex: 0 0 auto"
+            class="m-1"
+          />
+        </div>
+      </div>
 
       <div>
         <p class="text-lg md:text-xl text-neutral-400 font-light leading-relaxed">

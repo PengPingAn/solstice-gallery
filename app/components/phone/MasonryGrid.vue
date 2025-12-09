@@ -423,19 +423,28 @@ const initializeComponent = () => {
   });
 };
 
-const showDetail = ref(false);
-const currentImageIndex = ref(0);
-const openImageDetail = (index) => {
-  currentImageIndex.value = index;
-  showDetail.value = true;
-};
+// const showDetail = ref(false);
+// const currentImageIndex = ref(0);
+// const openImageDetail = (index) => {
+//   currentImageIndex.value = index;
+//   showDetail.value = true;
+// };
 
-// 关闭详情
-const handleCloseDetail = () => {
-  showDetail.value = false;
-};
+// // 关闭详情
+// const handleCloseDetail = () => {
+//   showDetail.value = false;
+// };
 
-onMounted(() => {
+// const loadImage = () => {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve("Image loaded");
+//     }, 3000); // 延迟 3 秒
+//   });
+// };
+
+onMounted(async () => {
+  // await loadImage();
   initializeComponent();
   window.addEventListener("resize", updateWidth);
   window.addEventListener("scroll", debouncedUpdate);

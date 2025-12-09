@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-overlay">
+  <div v-if="loadingStore.isLoading" class="loading-overlay">
     <div class="loading-container">
       <!-- 相册图标 -->
       <div class="album-icon">
@@ -52,6 +52,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useLoadingStore } from "~/stores/pinia";
+
+const loadingStore = useLoadingStore();
 
 const textList = [
   "Immortalizing the fleeting beauty of everyday life, one frame at a time.",
