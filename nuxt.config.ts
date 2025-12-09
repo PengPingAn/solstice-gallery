@@ -47,9 +47,6 @@ export default defineNuxtConfig({
   ],
   modules: ["@nuxt/ui", "@nuxt/image", "@pinia/nuxt"],
   css: ["~/assets/css/tailwind.css", "~/assets/css/style.css"],
-  vite: {
-    // 你可以在这里进行自定义配置
-  },
   colorMode: {
     preference: "dark", // 默认是 dark
     fallback: "dark", // SSR fallback 也是 dark
@@ -57,5 +54,30 @@ export default defineNuxtConfig({
   },
   ui: {
     fonts: false, // 完全禁用 @nuxt/fonts 模块
+  },
+  experimental: {
+    payloadExtraction: false,
+    renderJsonPayloads: false,
+  },
+  nitro: {
+    preset: "vercel",
+    // 尝试禁用模块预打包
+    esbuild: {
+      options: {
+        format: "esm",
+      },
+    },
+  },
+
+  // 配置 Vite
+  vite: {
+    ssr: {
+      noExternal: ["vue"], // 确保 Vue 被正确打包
+    },
+    build: {
+      rollupOptions: {
+        external: [], // 确保没有排除 vue
+      },
+    },
   },
 });
