@@ -22,7 +22,7 @@ export function useVisibleStats() {
   });
 
   let observer: IntersectionObserver | null = null;
-  let computeTimeout: NodeJS.Timeout | null = null;
+  let computeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // 注册组件用于统计
   const registerComponent = (

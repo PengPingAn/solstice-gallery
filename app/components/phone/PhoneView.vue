@@ -39,7 +39,7 @@ const dragStart = ref({ x: 0, y: 0 });
 
 // UI状态
 const showScaleText = ref(false);
-let scaleTextTimer: NodeJS.Timeout | null = null;
+let scaleTextTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 常量
 const MIN_SCALE = 0.1;
