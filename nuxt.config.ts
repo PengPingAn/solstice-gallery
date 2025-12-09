@@ -45,7 +45,7 @@ export default defineNuxtConfig({
   components: [
     { path: "~/components", pathPrefix: false }, // 递归扫描
   ],
-  modules: ["@nuxt/ui", "@nuxt/image", "@pinia/nuxt"],
+  modules: ["@nuxt/ui", "@nuxt/image", "@pinia/nuxt", "@nuxtjs/color-mode"],
   css: ["~/assets/css/tailwind.css", "~/assets/css/style.css"],
   colorMode: {
     preference: "dark", // 默认是 dark
@@ -68,8 +68,6 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  // 配置 Vite
   vite: {
     ssr: {
       noExternal: ["vue"], // 确保 Vue 被正确打包
