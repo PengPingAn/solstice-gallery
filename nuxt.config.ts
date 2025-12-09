@@ -45,7 +45,7 @@ export default defineNuxtConfig({
   components: [
     { path: "~/components", pathPrefix: false }, // 递归扫描
   ],
-  modules: ["@nuxt/ui", "@nuxt/image", "@pinia/nuxt", "@nuxtjs/color-mode"],
+  modules: ["@nuxt/ui", "@nuxt/image", "@pinia/nuxt"],
   css: ["~/assets/css/tailwind.css", "~/assets/css/style.css"],
   colorMode: {
     preference: "dark", // 默认是 dark
