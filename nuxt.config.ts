@@ -55,29 +55,29 @@ export default defineNuxtConfig({
   ui: {
     fonts: false, // 完全禁用 @nuxt/fonts 模块
   },
-  experimental: {
-    payloadExtraction: false,
-    renderJsonPayloads: false,
-  },
-  nitro: {
-    preset: "vercel",
-    // 尝试禁用模块预打包
-    esbuild: {
-      options: {
-        format: "esm",
-      },
-    },
-  },
+  // experimental: {
+  //   payloadExtraction: false,
+  //   renderJsonPayloads: false,
+  // },
+  // nitro: {
+  //   preset: "vercel",
+  //   // 尝试禁用模块预打包
+  //   esbuild: {
+  //     options: {
+  //       format: "esm",
+  //     },
+  //   },
+  // },
 
-  // 配置 Vite
-  vite: {
-    ssr: {
-      noExternal: ["vue"], // 确保 Vue 被正确打包
-    },
-    build: {
-      rollupOptions: {
-        external: [], // 确保没有排除 vue
-      },
-    },
-  },
+  // // 配置 Vite
+  // vite: {
+  //   ssr: {
+  //     noExternal: ["vue"], // 确保 Vue 被正确打包
+  //   },
+  //   build: {
+  //     rollupOptions: {
+  //       external: [], // 确保没有排除 vue
+  //     },
+  //   },
+  // },
 });
