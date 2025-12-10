@@ -193,13 +193,69 @@ const deviceColumns = computed(() => {
     });
     return cols;
   } else {
-    // 桌面端：保持原有逻辑，第一列包含个人信息卡片
+    // 桌面端：修改算法，让第一张图片出现在第一行的第二列
     const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
-    props.items.forEach((item, index) => {
-      item._index = index;
-      const colIndex = index % count;
-      cols[colIndex].push(item);
-    });
+
+    // 第一列比其他列少一个位置（因为个人信息卡片占用了第一行第一列）
+    const itemsPerColumn = Math.ceil(props.items.length / count);
+    const firstColItems = itemsPerColumn - 1; // 第一列少一个
+
+    // 计算每一列应该有多少个图片
+    let remainingItems = props.items.length;
+    const colSizes: number[] = [];
+
+    // 第一列少一个
+    const firstColSize = Math.min(firstColItems, remainingItems);
+    colSizes.push(firstColSize);
+    remainingItems -= firstColSize;
+
+    // 分配剩余列
+    for (let i = 1; i < count; i++) {
+      if (remainingItems <= 0) {
+        colSizes.push(0);
+        continue;
+      }
+
+      const colSize = Math.min(itemsPerColumn, remainingItems);
+      colSizes.push(colSize);
+      remainingItems -= colSize;
+    }
+
+    // 按照列优先的方式分配图片，但考虑第一列少一个
+    let itemIndex = 0;
+
+    // 先填充其他列的第一行
+    for (let col = 1; col < count; col++) {
+      if (itemIndex < props.items.length) {
+        const item = props.items[itemIndex];
+        item._index = itemIndex;
+        cols[col].push(item);
+        itemIndex++;
+      }
+    }
+
+    // 然后按照正常的列优先顺序填充所有列
+    let currentRow = 1; // 从第二行开始（第一行已部分填充）
+    let filled = true;
+
+    while (filled && itemIndex < props.items.length) {
+      filled = false;
+
+      // 遍历所有列（包括第一列）
+      for (let col = 0; col < count; col++) {
+        // 检查这一列是否还需要更多图片
+        if (cols[col].length < colSizes[col] && itemIndex < props.items.length) {
+          const item = props.items[itemIndex];
+          item._index = itemIndex;
+          cols[col].push(item);
+          itemIndex++;
+          filled = true;
+        }
+      }
+
+      currentRow++;
+    }
+
     return cols;
   }
 });
@@ -422,26 +478,6 @@ const initializeComponent = () => {
     });
   });
 };
-
-// const showDetail = ref(false);
-// const currentImageIndex = ref(0);
-// const openImageDetail = (index) => {
-//   currentImageIndex.value = index;
-//   showDetail.value = true;
-// };
-
-// // 关闭详情
-// const handleCloseDetail = () => {
-//   showDetail.value = false;
-// };
-
-// const loadImage = () => {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve("Image loaded");
-//     }, 3000); // 延迟 3 秒
-//   });
-// };
 
 onMounted(async () => {
   // await loadImage();

@@ -29,6 +29,17 @@ const currentIndex = ref(props.initialIndex);
 const thumbnailContainer = ref<HTMLElement | null>(null);
 const imageElement = ref<HTMLImageElement | null>(null);
 
+// 背景图相关
+const backgroundImageUrl = ref<string>("");
+const backgroundImageLoaded = ref<boolean>(false);
+const isTransitioningBackground = ref<boolean>(false);
+const previousBackgroundUrl = ref<string>("");
+const imageCache = new Map<string, boolean>(); // 缓存已加载的图片
+
+// 默认背景图（加载失败时使用）
+const DEFAULT_BACKGROUND =
+  "data:image/png;base64,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";
+
 const message = useMessage();
 
 // 缩放状态
@@ -47,6 +58,83 @@ const MAX_SCALE = 5;
 const SCALE_STEP = 0.25;
 
 const currentImage = computed(() => props.images[currentIndex.value]);
+
+// 优化背景加载 - 预加载所有图片
+const preloadImages = () => {
+  if (!props.images || props.images.length === 0) return;
+
+  props.images.forEach((image) => {
+    if (!image.url || imageCache.has(image.url)) return;
+
+    const img = new Image();
+    img.src = image.url;
+    img.onload = () => {
+      imageCache.set(image.url, true);
+    };
+    img.onerror = () => {
+      imageCache.set(image.url, false);
+    };
+  });
+};
+
+// 优化背景加载 - 使用低质量图片版本（如果可用）
+const getBackgroundImageUrl = (url: string): string => {
+  // 如果没有特殊处理，直接使用原图
+  // 在实际项目中，可以在这里添加逻辑来获取低质量版本
+  // 例如：url.replace('.jpg', '_small.jpg') 或使用图片服务API
+  return url;
+};
+
+// 优化背景切换 - 平滑过渡
+const switchBackground = (url: string) => {
+  if (!url) {
+    backgroundImageUrl.value = DEFAULT_BACKGROUND;
+    backgroundImageLoaded.value = true;
+    return;
+  }
+
+  // 如果已经是当前背景，不切换
+  if (backgroundImageUrl.value === url && backgroundImageLoaded.value) return;
+
+  // 记录前一个背景
+  previousBackgroundUrl.value = backgroundImageUrl.value;
+
+  // 开始过渡
+  isTransitioningBackground.value = true;
+
+  // 检查缓存
+  if (imageCache.has(url) && imageCache.get(url)) {
+    // 已缓存，立即显示
+    backgroundImageUrl.value = getBackgroundImageUrl(url);
+    backgroundImageLoaded.value = true;
+    isTransitioningBackground.value = false;
+    return;
+  }
+
+  // 设置默认背景作为过渡
+  backgroundImageUrl.value = DEFAULT_BACKGROUND;
+  backgroundImageLoaded.value = true;
+
+  // 异步加载新背景
+  const img = new Image();
+  img.src = url;
+  img.onload = () => {
+    // 添加到缓存
+    imageCache.set(url, true);
+
+    // 延迟一点时间显示新背景，让过渡更平滑
+    setTimeout(() => {
+      backgroundImageUrl.value = getBackgroundImageUrl(url);
+      isTransitioningBackground.value = false;
+    }, 100);
+  };
+  img.onerror = () => {
+    imageCache.set(url, false);
+    // 保持默认背景
+    backgroundImageUrl.value = DEFAULT_BACKGROUND;
+    isTransitioningBackground.value = false;
+  };
+};
 
 // 定义表情列表
 const emojiList = ref([
@@ -324,14 +412,23 @@ const handleMouseLeave = () => {
   }
 };
 
+// 优化：添加节流
+let wheelTimeout: ReturnType<typeof setTimeout> | null = null;
 const handleWheel = (e: WheelEvent) => {
   e.preventDefault();
+
+  // 节流处理
+  if (wheelTimeout) return;
 
   // 计算缩放方向
   const delta = e.deltaY < 0 ? -0.1 : 0.1;
   const newScale = scale.value * (1 - delta);
 
   zoom(newScale, e.clientX, e.clientY);
+
+  wheelTimeout = setTimeout(() => {
+    wheelTimeout = null;
+  }, 16); // 约60fps
 };
 
 // 缩略图滚轮
@@ -370,31 +467,69 @@ const handleKeyDown = (e: KeyboardEvent) => {
 };
 
 // 监听图片变化
-watch(currentImage, () => {
-  resetTransform();
-});
+watch(
+  currentImage,
+  (newImage) => {
+    if (newImage?.url) {
+      switchBackground(newImage.url);
+    } else {
+      backgroundImageUrl.value = DEFAULT_BACKGROUND;
+      backgroundImageLoaded.value = true;
+    }
+  },
+  { immediate: true }
+);
 
 // 生命周期
 onMounted(() => {
   gotoIndex(props.initialIndex);
   document.addEventListener("keydown", handleKeyDown);
+
+  // 预加载所有图片
+  preloadImages();
 });
 
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
   if (scaleTextTimer) clearTimeout(scaleTextTimer);
+  if (wheelTimeout) clearTimeout(wheelTimeout);
 });
 </script>
 
 <template>
   <div class="fixed inset-0 z-9999" style="--color-accent: #626670" @click.stop>
+    <!-- 背景模糊层 -->
     <div class="bg-material-opaque fixed inset-0" style="opacity: 1" @click.stop></div>
+
+    <!-- 动态背景图片 -->
     <div class="fixed inset-0" style="opacity: 1">
-      <img
-        class="h-full w-full size-fill scale-110"
-        src="data:image/png;base64,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"
-      />
+      <!-- 前一个背景（用于平滑过渡） -->
+      <div
+        v-if="previousBackgroundUrl && isTransitioningBackground"
+        class="h-full w-full size-fill scale-110 bg-cover bg-center absolute inset-0"
+        :style="{
+          backgroundImage: `url(${previousBackgroundUrl})`,
+          filter: 'blur(50px) brightness(0.3) saturate(1.2)',
+          transition: 'opacity 0.3s ease-out',
+          opacity: 0.5,
+        }"
+      ></div>
+
+      <!-- 当前背景 -->
+      <div
+        class="h-full w-full size-fill scale-110 bg-cover bg-center"
+        :style="{
+          backgroundImage: `url(${DEFAULT_BACKGROUND})`,
+        }"
+      ></div>
+
+      <!-- 额外的暗色遮罩层 -->
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40"
+        style="mix-blend-mode: multiply"
+      ></div>
     </div>
+
     <div
       class="fixed inset-0 z-50 flex items-center justify-center"
       @click.stop
@@ -412,6 +547,17 @@ onUnmounted(() => {
             @mouseleave="handleMouseLeave"
             @wheel="handleWheel"
           >
+            <div
+              class="absolute h-full w-full size-fill bg-cover bg-center"
+              :style="{
+                backgroundImage: `url(${backgroundImageUrl})`,
+                filter: 'blur(70px) brightness(0.5) saturate(0.2)',
+                transition:
+                  'background-image 0.3s ease-out, filter 0.3s ease-out, opacity 0.3s ease-out',
+                opacity: isTransitioningBackground ? 10.5 : 1,
+              }"
+            ></div>
+
             <!-- 缩放比例指示器 -->
             <transition
               enter-active-class="transition-all duration-200"
@@ -421,7 +567,7 @@ onUnmounted(() => {
             >
               <div
                 v-if="showScaleText"
-                class="fixed top-20 left-1/2 z-50 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm shadow-lg"
+                class="absolute top-20 left-1/2 z-50 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-out bg-gray-500/20 text-white backdrop-blur-lg"
                 style="pointer-events: none"
               >
                 {{ Math.round(scale * 100) }}%
@@ -437,7 +583,7 @@ onUnmounted(() => {
             >
               <div
                 v-if="scale > 1"
-                class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 flex items-center gap-1 bg-black/80 backdrop-blur-sm rounded-full p-1 shadow-lg"
+                class="absolute bottom-4 left-18 z-50 -translate-x-1/2 flex items-center gap-1 rounded-full p-1 shadow-lg bg-gray-500/20 text-white backdrop-blur-lg"
               >
                 <button
                   type="button"
@@ -633,6 +779,7 @@ onUnmounted(() => {
                   :alt="image.title"
                   class="h-full w-full object-cover"
                   :src="image.url"
+                  loading="lazy"
                 />
               </button>
             </div>
@@ -870,5 +1017,36 @@ button:active {
 /* 确保缩略图滚轮平滑 */
 .thumbnail-container {
   scroll-behavior: smooth;
+}
+
+/* 背景图片过渡效果 */
+.bg-cover {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* 优化性能：减少重绘 */
+* {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* 优化滚动性能 */
+.overflow-x-hidden {
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* 优化模糊效果性能 */
+.backdrop-blur-2xl {
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+/* 优化过渡效果 */
+.transition-transform {
+  will-change: transform;
 }
 </style>
