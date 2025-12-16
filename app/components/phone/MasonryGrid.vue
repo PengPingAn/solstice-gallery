@@ -164,16 +164,6 @@ const columnCount = computed(() => {
   return calculatedColumns;
 });
 
-const columnStartIndex = computed(() => {
-  const arr = [];
-  let total = 0;
-  for (const col of deviceColumns.value) {
-    arr.push(total);
-    total += col.length;
-  }
-  return arr;
-});
-
 // 根据设备类型计算列数据
 const deviceColumns = computed(() => {
   const count = columnCount.value;
@@ -182,9 +172,8 @@ const deviceColumns = computed(() => {
     return [];
   }
 
-  // 如果是移动端，需要特殊处理：将个人信息卡片单独放一行
+  // 如果是移动端
   if (isMobile.value) {
-    // 移动端：将所有图片均匀分配到列中
     const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
     props.items.forEach((item, index) => {
       item._index = index;
@@ -193,69 +182,35 @@ const deviceColumns = computed(() => {
     });
     return cols;
   } else {
-    // 桌面端：修改算法，让第一张图片出现在第一行的第二列
+    // 桌面端：按行填充，但第一行第一列留空
     const cols: PhotoItem[][] = Array.from({ length: count }, () => []);
+    const totalItems = props.items.length;
 
-    // 第一列比其他列少一个位置（因为个人信息卡片占用了第一行第一列）
-    const itemsPerColumn = Math.ceil(props.items.length / count);
-    const firstColItems = itemsPerColumn - 1; // 第一列少一个
+    if (totalItems === 0) return cols;
 
-    // 计算每一列应该有多少个图片
-    let remainingItems = props.items.length;
-    const colSizes: number[] = [];
+    // 计算总行数（向上取整）
+    const rows = Math.ceil((totalItems + 1) / count); // +1 是因为第一行第一列是空的
 
-    // 第一列少一个
-    const firstColSize = Math.min(firstColItems, remainingItems);
-    colSizes.push(firstColSize);
-    remainingItems -= firstColSize;
-
-    // 分配剩余列
-    for (let i = 1; i < count; i++) {
-      if (remainingItems <= 0) {
-        colSizes.push(0);
-        continue;
-      }
-
-      const colSize = Math.min(itemsPerColumn, remainingItems);
-      colSizes.push(colSize);
-      remainingItems -= colSize;
-    }
-
-    // 按照列优先的方式分配图片，但考虑第一列少一个
     let itemIndex = 0;
 
-    // 先填充其他列的第一行
-    for (let col = 1; col < count; col++) {
-      if (itemIndex < props.items.length) {
-        const item = props.items[itemIndex];
-        item._index = itemIndex;
+    // 按行填充
+    for (let row = 0; row < rows && itemIndex < totalItems; row++) {
+      for (let col = 0; col < count && itemIndex < totalItems; col++) {
+        // 如果是第一行第一列，跳过（留给个人信息卡片）
+        if (row === 0 && col === 0) {
+          continue;
+        }
+
+        const item = { ...props.items[itemIndex], _index: itemIndex };
         cols[col].push(item);
         itemIndex++;
       }
     }
 
-    // 然后按照正常的列优先顺序填充所有列
-    let currentRow = 1; // 从第二行开始（第一行已部分填充）
-    let filled = true;
-
-    while (filled && itemIndex < props.items.length) {
-      filled = false;
-
-      // 遍历所有列（包括第一列）
-      for (let col = 0; col < count; col++) {
-        // 检查这一列是否还需要更多图片
-        if (cols[col].length < colSizes[col] && itemIndex < props.items.length) {
-          const item = props.items[itemIndex];
-          item._index = itemIndex;
-          cols[col].push(item);
-          itemIndex++;
-          filled = true;
-        }
-      }
-
-      currentRow++;
-    }
-
+    console.log(
+      "按行填充结果:",
+      cols.map((col) => col.length)
+    );
     return cols;
   }
 });

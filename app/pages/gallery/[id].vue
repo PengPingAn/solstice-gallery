@@ -10,12 +10,18 @@
       close-icon="i-lucide-arrow-right"
     >
       <template #content>
-        <PhoneView
+        <!-- <PhoneView
           :images="photos"
           :initial-index="currentImageIndex"
           @closePhoneView="closeDetail"
         >
-        </PhoneView>
+        </PhoneView> -->
+        <ImageViewer
+          :images="photos"
+          :initial-index="currentImageIndex"
+          @closePhoneView="closeDetail"
+        >
+        </ImageViewer>
       </template>
     </UModal>
   </div>
@@ -154,7 +160,7 @@ const photos = ref([
   {
     id: 16,
     url:
-      "https://img2.baidu.com/it/u=1844470629,2107270501&fm=253&app=138&f=JPEG?w=800&h=1200",
+      "https://img0.baidu.com/it/u=1255122254,2020058851&fm=253&app=138&f=JPEG?w=800&h=1344",
     title: "Urban Park",
     meta: "CANON R6",
     date: "2025-10-15",
@@ -325,6 +331,15 @@ const photos = ref([
     id: 35,
     url:
       "https://img1.baidu.com/it/u=3873824728,11066418&fm=253&app=138&f=JPEG?w=800&h=1067",
+    title: "Superman",
+    meta: "NIKON Zf",
+    date: "2024-01-06",
+    address: "美国",
+  },
+  {
+    id: 36,
+    url:
+      "https://img1.baidu.com/it/u=1772046259,988740784&fm=253&app=138&f=JPEG?w=800&h=1200",
     title: "Superman",
     meta: "NIKON Zf",
     date: "2024-01-06",

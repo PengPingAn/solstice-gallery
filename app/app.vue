@@ -21,7 +21,9 @@ watch(
 <template>
   <div>
     <UApp>
-      <NuxtPage />
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
       <!-- <Loading /> -->
     </UApp>
   </div>

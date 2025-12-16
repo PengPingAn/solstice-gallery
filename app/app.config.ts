@@ -54,5 +54,10 @@ export default defineAppConfig({
         },
       },
     },
+    header: {
+      slots: {
+        container: "max-w-none",
+      },
+    },
   },
 });

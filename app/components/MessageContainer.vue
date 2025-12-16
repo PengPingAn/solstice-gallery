@@ -248,25 +248,25 @@ defineExpose({
 .message-item.success {
   background: rgba(16, 185, 129, 0.9);
   color: white;
-  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2), 0 10px 20px rgba(16, 185, 129, 0.15);
+  /* box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2), 0 10px 20px rgba(16, 185, 129, 0.15); */
 }
 
 .message-item.info {
   background: rgba(59, 130, 246, 0.9);
   color: white;
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2), 0 10px 20px rgba(59, 130, 246, 0.15);
+  /* box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2), 0 10px 20px rgba(59, 130, 246, 0.15); */
 }
 
 .message-item.warning {
   background: rgba(245, 158, 11, 0.9);
   color: white;
-  box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2), 0 10px 20px rgba(245, 158, 11, 0.15);
+  /* box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2), 0 10px 20px rgba(245, 158, 11, 0.15); */
 }
 
 .message-item.error {
   background: rgba(239, 68, 68, 0.9);
   color: white;
-  box-shadow: 0 20px 40px rgba(239, 68, 68, 0.2), 0 10px 20px rgba(239, 68, 68, 0.15);
+  /* box-shadow: 0 20px 40px rgba(239, 68, 68, 0.2), 0 10px 20px rgba(239, 68, 68, 0.15); */
 }
 
 /* 优化的毛玻璃效果 - 深色版本 */
