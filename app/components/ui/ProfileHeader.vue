@@ -6,6 +6,22 @@ defineProps<{
   source: string;
   description: string;
 }>();
+
+const userStore = useUserStore();
+userStore.initToken();
+
+const clearToken = () => {
+  message.show({
+    text: `即将退出登录`,
+    messageType: "warning",
+    duration: 2000,
+  });
+  userStore.clearToken();
+};
+
+const jumpDashboard = () => {
+  navigateTo("/dashboard");
+};
 </script>
 
 <template>
@@ -74,6 +90,26 @@ defineProps<{
         <Tag size="md" radius="full">📸 PHOTOGRAPHY</Tag>
 
         <Tag size="md" radius="full">💻 DEVELOPER</Tag>
+      </div>
+      <div v-if="userStore.isLogin" class="flex gap-2">
+        <UButton
+          class="cursor-pointer"
+          icon="mage:dashboard-chart-notification"
+          size="xs"
+          color="primary"
+          variant="solid"
+          @click="jumpDashboard"
+          >控制台</UButton
+        >
+        <UButton
+          class="cursor-pointer"
+          icon="basil:login-outline"
+          size="xs"
+          color="primary"
+          variant="solid"
+          @click="clearToken"
+          >登出</UButton
+        >
       </div>
     </div>
   </div>

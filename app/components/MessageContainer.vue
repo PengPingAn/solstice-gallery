@@ -234,8 +234,8 @@ defineExpose({
   transform: translateX(-50%);
   min-width: 100px;
   max-width: 480px;
-  padding: 16px 20px;
-  border-radius: 12px;
+  padding: 10px 15px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   gap: 12px;

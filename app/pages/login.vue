@@ -50,18 +50,19 @@ const providers = [
 ];
 
 const schema = z.object({
-  email: z.email("无效的Email"),
-  password: z.string("无效的密码"),
+  email: z.string().email("无效的Email"),
+  password: z.string().min(1, "无效的密码"),
+  remember: z.boolean().optional(), // checkbox
 });
 
 type Schema = z.output<typeof schema>;
 
 function onSubmit(payload: FormSubmitEvent<Schema>) {
   sumbitLoading.value = true;
-
+  console.log(payload);
   setTimeout(() => {
     sumbitLoading.value = false;
-    userStore.setToken("token");
+    userStore.setToken("token", payload.data.remember);
     navigateTo("/dashboard");
   }, 1000);
 }

@@ -23,7 +23,7 @@ class MessageManager {
   private messages = reactive<MessageItem[]>([]);
   private container: HTMLDivElement | null = null;
   private idCounter = 0;
-  private MESSAGE_HEIGHT = 70; // 消息高度（包括间距）
+  private MESSAGE_HEIGHT = 50; // 消息高度（包括间距）
 
   constructor() {
     this.initContainer();

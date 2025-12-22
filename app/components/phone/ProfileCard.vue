@@ -14,6 +14,22 @@ const isDark = computed({
 });
 const colorMode = useColorMode();
 
+const userStore = useUserStore();
+userStore.initToken();
+
+const clearToken = () => {
+  message.show({
+    text: `即将退出登录`,
+    messageType: "warning",
+    duration: 2000,
+  });
+  userStore.clearToken();
+};
+
+const jumpDashboard = () => {
+  navigateTo("/dashboard");
+};
+
 onBeforeMount(() => {});
 function toggleTheme() {
   colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
@@ -117,6 +133,26 @@ function toggleTheme() {
                 class="rounded-full"
                 to="https://github.com/PengPingAn/solstice-gallery"
                 target="_blank"
+              />
+            </UTooltip>
+            <UTooltip text="控制台" v-if="userStore.isLogin">
+              <UButton
+                icon="mage:dashboard-chart-notification"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                class="rounded-full"
+                @click="jumpDashboard"
+              />
+            </UTooltip>
+            <UTooltip text="登出" v-if="userStore.isLogin">
+              <UButton
+                icon="basil:login-outline"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                class="rounded-full"
+                @click="clearToken"
               />
             </UTooltip>
           </div>

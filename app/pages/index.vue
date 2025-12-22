@@ -1,88 +1,74 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
-import { useHead } from "#app";
+import { onBeforeMount } from 'vue'
 
-const router = useRouter();
+const router = useRouter()
 const isDark = computed({
   get() {
-    return colorMode.value === "dark";
+    return colorMode.value === 'dark'
   },
   set(_isDark) {
-    colorMode.preference = _isDark ? "dark" : "light";
+    colorMode.preference = _isDark ? 'dark' : 'light'
   },
-});
-const colorMode = useColorMode();
+})
+const colorMode = useColorMode()
 
-onBeforeMount(() => {});
+onBeforeMount(() => {})
 function toggleTheme() {
-  colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
+  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
 }
 
 const testimonials = [
   {
-    title: "测试图片1",
-    tags: ["英国", "瑞士"],
+    title: '测试图片1',
+    tags: ['英国', '瑞士'],
+    urlData: ['https://inews.gtimg.com/om_bt/OWumJZCG9jHXDKrHQjSezIIcIg1NITThJBXJrH8ps31VQAA/641'],
+  },
+  {
+    title: '测试图片2',
+    tags: ['东极岛'],
     urlData: [
-      "https://res.liuyuyang.net/thrive/album/68f4d70e60b2036e8a43ed5f.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4d93a60b2036e8a43ed64.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4cfce60b2036e8a43ed4b.JPG",
+      'https://img1.baidu.com/it/u=2038813437,949072289&fm=253&fmt=auto&app=138&f=JPEG?w=1067&h=800',
     ],
   },
   {
-    title: "测试图片2",
-    tags: ["东极岛"],
+    title: '测试图片3',
+    tags: ['云南', '怒江'],
     urlData: [
-      "https://res.liuyuyang.net/thrive/album/68f4d1fb60b2036e8a43ed57.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4ce8560b2036e8a43ed48.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4ce5f60b2036e8a43ed47.JPG",
+      'https://img2.baidu.com/it/u=3536488503,2654862171&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1200',
     ],
   },
   {
-    title: "测试图片3",
-    tags: ["云南", "怒江"],
+    title: '测试图片4',
+    tags: ['最美之海'],
     urlData: [
-      "https://res.liuyuyang.net/thrive/album/68f4d92f60b2036e8a43ed62.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4d92960b2036e8a43ed61.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4da9e60b2036e8a43ed69.JPG",
+      'https://img0.baidu.com/it/u=3266618230,1308514086&fm=253&app=138&f=JPEG?w=800&h=1067',
     ],
   },
   {
-    title: "测试图片4",
-    tags: ["最美之海"],
+    title: '测试图片5',
+    tags: ['钟'],
     urlData: [
-      "https://res.liuyuyang.net/thrive/album/68f4cfe960b2036e8a43ed4f.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4dd4760b2036e8a43ed6f.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4dd4260b2036e8a43ed6e.JPG",
+      'https://img0.baidu.com/it/u=2003626523,2470071325&fm=253&app=138&f=JPEG?w=800&h=1067',
     ],
   },
   {
-    title: "测试图片5",
-    tags: ["钟"],
+    title: '测试图片6',
+    tags: ['香格里拉'],
     urlData: [
-      "https://res.liuyuyang.net/thrive/album/68f4da9a60b2036e8a43ed68.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4d70360b2036e8a43ed5d.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4daab60b2036e8a43ed6c.JPG",
+      'https://qcloud.dpfile.com/pc/h0jK_DfiFV_fQjL3CQpOVgRTnPIjwQlmZHNHjRv2n3Yrg3bZmogVH6Ln8ywR4Guo.jpg',
     ],
   },
-  {
-    title: "测试图片6",
-    tags: ["香格里拉"],
-    urlData: [
-      "https://res.liuyuyang.net/thrive/album/68f4daab60b2036e8a43ed6c.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4d70360b2036e8a43ed5d.JPG",
-      // "https://res.liuyuyang.net/thrive/album/68f4daab60b2036e8a43ed6c.JPG",
-    ],
-  },
-];
+]
 const allPhoto = {
-  title: "ALL",
-  tags: ["ALL"],
-  urlData: "https://res.liuyuyang.net/thrive/album/68f4d70e60b2036e8a43ed5f.JPG",
-};
+  title: 'ALL',
+  tags: ['ALL'],
+  urlData:
+    'https://qcloud.dpfile.com/pc/GxQVns6a7oE_uWvzCvQ_jkLGXRlo0O2ZBczMdvbk76oT_p_NlQV3-I3R8sFMnjwG.jpg',
+}
 
 const jumpPhoto = (val: any) => {
-  router.push(`/gallery/1`);
-};
+  router.push(`/gallery/1`)
+}
 </script>
 
 <template>
@@ -93,19 +79,13 @@ const jumpPhoto = (val: any) => {
     <nav
       class="fixed top-0 left-0 right-0 z-50 h-16 bg-[#050505]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 bg-[var(--background-head)]"
     >
-      <span class="font-bold tracking-tight text-[var(--font-color)]"
-        >SOLSTICE-GALLERY</span
-      >
+      <span class="font-bold tracking-tight text-[var(--font-color)]">SOLSTICE-GALLERY</span>
       <div class="flex items-center gap-4">
         <div class="text-xs text-neutral-500 font-mono">VUE 3 REPLICA</div>
 
         <UTooltip text="主题切换">
           <UButton
-            :icon="
-              isDark
-                ? 'material-symbols:sunny-outline'
-                : 'material-symbols:dark-mode-outline'
-            "
+            :icon="isDark ? 'material-symbols:sunny-outline' : 'material-symbols:dark-mode-outline'"
             color="neutral"
             variant="subtle"
             size="sm"
@@ -157,7 +137,7 @@ const jumpPhoto = (val: any) => {
       </div>
 
       <!-- 瀑布流 -->
-      <!-- <MasonryGrid :items="photos" /> -->
+      <!-- <MasonryGallery :items="photos" /> -->
     </main>
 
     <!-- 底部 -->

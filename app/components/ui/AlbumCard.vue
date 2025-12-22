@@ -229,7 +229,6 @@ const initializeImageLoading = () => {
 };
 
 const jumpPhoto = () => {
-  console.log("11111");
   emit("jumpPhoto");
 };
 

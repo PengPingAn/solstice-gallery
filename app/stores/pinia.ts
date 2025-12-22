@@ -42,22 +42,38 @@ export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     token: "",
   }),
+
   getters: {
     isLogin(): boolean {
       return !!this.token;
     },
   },
+
   actions: {
-    setToken(token: string) {
+    setToken(token: string, rememberMe: boolean) {
       this.token = token;
-      const cookie = useCookie("token");
+
+      const cookie = useCookie("token", {
+        maxAge: rememberMe
+          ? 60 * 60 * 24 * 365 * 10 // 10 年（等同“永久”）
+          : 60 * 60 * 24 * 1, // 1 天
+        path: "/",
+        sameSite: "lax",
+      });
+
       cookie.value = token;
     },
+
     clearToken() {
       this.token = "";
-      const cookie = useCookie("token");
+
+      const cookie = useCookie("token", {
+        path: "/",
+      });
+
       cookie.value = null;
     },
+
     initToken() {
       const cookie = useCookie<string>("token");
       this.token = cookie.value || "";

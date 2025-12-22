@@ -24,7 +24,14 @@ watch(
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
-      <!-- <Loading /> -->
+      <Loading />
     </UApp>
   </div>
 </template>
+
+<style>
+span{
+  border:none !important;
+  
+}
+</style>

@@ -1,100 +1,100 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const props = defineProps<{
-  src: string;
-  title?: string;
-  meta?: string;
-  delay?: number;
-  address?: string;
-  date?: string;
-}>();
+  src: string
+  title?: string
+  meta?: string
+  delay?: number
+  address?: string
+  date?: string
+}>()
 
-const canvasRef = ref<HTMLCanvasElement | null>(null);
-const containerRef = ref<HTMLDivElement | null>(null);
-const isLoading = ref(true);
-const isVisible = ref(false);
-const showSecondaryInfo = ref(true); // 控制地址和日期的显示
+const canvasRef = ref<HTMLCanvasElement | null>(null)
+const containerRef = ref<HTMLDivElement | null>(null)
+const isLoading = ref(true)
+const isVisible = ref(false)
+const showSecondaryInfo = ref(true) // 控制地址和日期的显示
 
-const HEIGHT_THRESHOLD = 250; // 临界高度
+const HEIGHT_THRESHOLD = 250 // 临界高度
 
 // 更新显示状态
 const updateVisibility = () => {
-  if (!canvasRef.value || !containerRef.value) return;
+  if (!canvasRef.value || !containerRef.value) return
 
   // 获取canvas的实际显示高度
-  const canvasRect = canvasRef.value.getBoundingClientRect();
-  const containerRect = containerRef.value.getBoundingClientRect();
+  const canvasRect = canvasRef.value.getBoundingClientRect()
+  const containerRect = containerRef.value.getBoundingClientRect()
 
   // 使用canvas的实际高度或容器的较小值
-  const actualHeight = canvasRect.height || containerRect.height;
+  const actualHeight = canvasRect.height || containerRect.height
 
   // 如果高度小于阈值，则不显示地址和日期
-  showSecondaryInfo.value = actualHeight > HEIGHT_THRESHOLD;
-};
+  showSecondaryInfo.value = actualHeight > HEIGHT_THRESHOLD
+}
 
 const renderImage = () => {
-  if (!canvasRef.value) return;
-  const ctx = canvasRef.value.getContext("2d");
-  const img = new Image();
-  img.crossOrigin = "Anonymous";
-  img.src = props.src;
+  if (!canvasRef.value) return
+  const ctx = canvasRef.value.getContext('2d')
+  const img = new Image()
+  img.crossOrigin = 'Anonymous'
+  img.src = props.src
 
   img.onload = () => {
-    if (!canvasRef.value || !ctx) return;
-    canvasRef.value.width = img.naturalWidth;
-    canvasRef.value.height = img.naturalHeight;
-    ctx.drawImage(img, 0, 0);
-    isLoading.value = false;
+    if (!canvasRef.value || !ctx) return
+    canvasRef.value.width = img.naturalWidth
+    canvasRef.value.height = img.naturalHeight
+    ctx.drawImage(img, 0, 0)
+    isLoading.value = false
 
     // 图片加载完成后，延迟一点更新显示状态
     setTimeout(() => {
-      updateVisibility();
+      updateVisibility()
       // 入场动画触发
       requestAnimationFrame(() => {
-        isVisible.value = true;
-      });
-    }, 100); // 等待布局更新
-  };
+        isVisible.value = true
+      })
+    }, 100) // 等待布局更新
+  }
 
   img.onerror = () => {
-    isLoading.value = false;
-    updateVisibility(); // 即使加载失败也更新状态
-  };
-};
+    isLoading.value = false
+    updateVisibility() // 即使加载失败也更新状态
+  }
+}
 
-let observer: IntersectionObserver | null = null;
-let resizeObserver: ResizeObserver | null = null;
+let observer: IntersectionObserver | null = null
+let resizeObserver: ResizeObserver | null = null
 
 onMounted(() => {
   // 初始时隐藏地址和日期
-  showSecondaryInfo.value = false;
+  showSecondaryInfo.value = false
 
   // 监听容器尺寸变化
   resizeObserver = new ResizeObserver(() => {
-    updateVisibility();
-  });
+    updateVisibility()
+  })
 
   observer = new IntersectionObserver(
     (entries) => {
       if (entries[0].isIntersecting) {
-        renderImage();
+        renderImage()
         if (containerRef.value) {
-          resizeObserver?.observe(containerRef.value);
+          resizeObserver?.observe(containerRef.value)
         }
-        observer?.disconnect();
+        observer?.disconnect()
       }
     },
     { threshold: 0.1 }
-  );
+  )
 
-  if (containerRef.value) observer.observe(containerRef.value);
-});
+  if (containerRef.value) observer.observe(containerRef.value)
+})
 
 onBeforeUnmount(() => {
-  observer?.disconnect();
-  resizeObserver?.disconnect();
-});
+  observer?.disconnect()
+  resizeObserver?.disconnect()
+})
 </script>
 
 <template>
@@ -126,17 +126,14 @@ onBeforeUnmount(() => {
           <h3 class="mb-2 truncate text-sm font-medium opacity-0 group-hover:opacity-100">
             {{ props.title }}
           </h3>
-          <div
-            class="flex flex-wrap gap-2 text-xs text-white/80 opacity-0 group-hover:opacity-100"
-          >
-            <span>JPG</span><span>•</span><span>4587 × 6880</span><span>•</span
-            ><span>6.6MB</span>
+          <div class="flex flex-wrap gap-2 text-xs text-white/80 opacity-0 group-hover:opacity-100">
+            <span>JPG</span><span>•</span><span>4587 × 6880</span><span>•</span><span>6.6MB</span>
           </div>
           <div class="flex flex-wrap gap-1.5" :class="{ 'mb-4': !showSecondaryInfo }">
             <Tag
               size="sm"
               radius="full"
-              color="bg-white/20 backdrop-blur-sm opacity-0 group-hover:opacity-100"
+              color="bg-white/20 backdrop-blur-sm !opacity-0 group-hover:!opacity-100"
               textColor="text-white/90"
             >
               <div class="flex items-center gap-1">
