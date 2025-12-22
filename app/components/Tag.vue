@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps, useSlots } from 'vue'
+import { Comment, computed, Text, useSlots } from 'vue'
 
 interface TagProps {
   color?: string
