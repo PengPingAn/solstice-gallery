@@ -8,6 +8,9 @@ const props = defineProps<{
   delay?: number
   address?: string
   date?: string
+  type?: string
+  resolution?: string
+  size?: string
 }>()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -126,10 +129,19 @@ onBeforeUnmount(() => {
           <h3 class="mb-2 truncate text-sm font-medium opacity-0 group-hover:opacity-100">
             {{ props.title }}
           </h3>
-          <div class="flex flex-wrap gap-2 text-xs text-white/80 opacity-0 group-hover:opacity-100">
-            <span>JPG</span><span>•</span><span>4587 × 6880</span><span>•</span><span>6.6MB</span>
+          <div
+            :class="{ 'mb-4': !props.meta }"
+            class="flex flex-wrap gap-2 text-xs text-white/80 opacity-0 group-hover:opacity-100"
+          >
+            <span>{{ type }}</span
+            ><span>•</span><span>{{ resolution }}</span
+            ><span>•</span><span>{{ size }}</span>
           </div>
-          <div class="flex flex-wrap gap-1.5" :class="{ 'mb-4': !showSecondaryInfo }">
+          <div
+            v-if="props.meta"
+            class="flex flex-wrap gap-1.5"
+            :class="{ 'mb-4': !showSecondaryInfo }"
+          >
             <Tag
               size="sm"
               radius="full"
