@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS image_tags (
+  image_id INTEGER NOT NULL,
+  tag_id INTEGER NOT NULL,
+  PRIMARY KEY (image_id, tag_id),
+  FOREIGN KEY (image_id) REFERENCES images(id),
+  FOREIGN KEY (tag_id) REFERENCES tags(id)
+);
