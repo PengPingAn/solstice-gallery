@@ -119,68 +119,64 @@ const getSafeSize = (width: number, height: number, maxSize: number) => {
   }
 }
 
+// 存储原图尺寸，用于后续同步 CSS
+let originalImageWidth = 0
+let originalImageHeight = 0
+
 const updateCanvasSize = (width: number, height: number) => {
   if (!canvasElement.value || !renderer || !camera || !mesh) return
 
-  // 获取 img 的实际显示尺寸（考虑 CSS max-height/max-width 等约束）
-  const thumbImg = document.querySelector('.thumb-layer') as HTMLImageElement
-  let canvasDisplayWidth = width
-  let canvasDisplayHeight = height
-  
-  if (thumbImg && thumbImg.offsetWidth > 0) {
-    // img 已被渲染且尺寸已确定
-    canvasDisplayWidth = thumbImg.offsetWidth
-    canvasDisplayHeight = thumbImg.offsetHeight
-  }
+  // 保存原图尺寸
+  originalImageWidth = width
+  originalImageHeight = height
 
-  // 根据显示尺寸计算合适的渲染分辨率（safeSize 的宽高比要与显示尺寸一致）
-  const safeSize = getSafeSize(canvasDisplayWidth, canvasDisplayHeight, maxTextureSize)
+  // 1. Canvas 像素分辨率使用原图的 safeSize（保持高质量）
+  const safeSize = getSafeSize(width, height, maxTextureSize)
   canvasElement.value.width = safeSize.width
   canvasElement.value.height = safeSize.height
   renderer.setSize(safeSize.width, safeSize.height, false)
 
-  // 设置 canvas CSS 宽高为显示尺寸，这样浏览器就不会拉伸或压缩
-  canvasElement.value.style.width = `${canvasDisplayWidth}px`
-  canvasElement.value.style.height = `${canvasDisplayHeight}px`
-
-  // 相机视椎体与 canvas 渲染分辨率完全对应
+  // 2. 相机和 Plane 与 canvas 像素分辨率完全匹配
   camera.left = -safeSize.width / 2
   camera.right = safeSize.width / 2
   camera.top = safeSize.height / 2
   camera.bottom = -safeSize.height / 2
   camera.updateProjectionMatrix()
 
-  // Plane 尺寸与相机视椎体完全一致
   mesh.geometry.dispose()
   mesh.geometry = new THREE.PlaneGeometry(safeSize.width, safeSize.height)
 
+  // 3. CSS 尺寸稍后由 syncCanvasDisplaySize 根据 img 的显示尺寸设置
+  //    这里先清空，避免残留的内联样式干扰
+  canvasElement.value.style.width = ''
+  canvasElement.value.style.height = ''
+
   console.log('[v0] Canvas size updated:', {
     originalImageSize: { w: width, h: height },
-    displaySize: { w: canvasDisplayWidth, h: canvasDisplayHeight },
-    safeSize,
-    cssSize: { w: canvasElement.value.style.width, h: canvasElement.value.style.height }
+    safeSize
   })
 
   renderWebGL()
 }
 
-// 如果 img 显示尺寸改变（窗口 resize），需要重新计算 canvas 尺寸
+// 同步 canvas 的 CSS 显示尺寸与 img 完全一致
+// canvas 的像素分辨率保持不变（高质量），只调整 CSS 显示尺寸
 const syncCanvasDisplaySize = (imgElement: HTMLImageElement) => {
   if (!canvasElement.value) return
   
   const imgWidth = imgElement.offsetWidth
   const imgHeight = imgElement.offsetHeight
-  const canvasWidth = canvasElement.value.width
-  const canvasHeight = canvasElement.value.height
   
-  console.log('[v0] syncCanvasDisplaySize - img resized:', {
+  console.log('[v0] syncCanvasDisplaySize:', {
     imgDisplaySize: { w: imgWidth, h: imgHeight },
-    canvasPixelSize: { w: canvasWidth, h: canvasHeight }
+    canvasPixelSize: { w: canvasElement.value.width, h: canvasElement.value.height }
   })
   
-  // 重新更新 canvas 尺寸以适应 img 的新显示尺寸
-  if (imgWidth > 0 && imgHeight > 0 && canvasWidth > 0 && canvasHeight > 0) {
-    updateCanvasSize(imgWidth, imgHeight)
+  // 只设置 CSS 尺寸，不改变 canvas 的像素分辨率
+  // 浏览器会自动做高质量的降采样
+  if (imgWidth > 0 && imgHeight > 0) {
+    canvasElement.value.style.width = `${imgWidth}px`
+    canvasElement.value.style.height = `${imgHeight}px`
   }
 }
 
