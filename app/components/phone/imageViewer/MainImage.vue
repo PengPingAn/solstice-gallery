@@ -122,29 +122,40 @@ const getSafeSize = (width: number, height: number, maxSize: number) => {
 const updateCanvasSize = (width: number, height: number) => {
   if (!canvasElement.value || !renderer || !camera || !mesh) return
 
-  // 1. 设置 WebGL 内部渲染分辨率 (控制在设备允许的 maxTextureSize 内)
+  // 1. 计算内部渲染分辨率 (控制在设备允许的 maxTextureSize 内)
   const safeSize = getSafeSize(width, height, maxTextureSize)
   canvasElement.value.width = safeSize.width
   canvasElement.value.height = safeSize.height
   renderer.setSize(safeSize.width, safeSize.height, false)
 
-  // 2. 将 canvas 的 CSS 尺寸设置为原图宽高比，让浏览器用 CSS 来做缩放适配，
-  //    避免 canvas 被父容器强制拉伸/截剪。max-width/max-height 由 CSS 类控制。
-  canvasElement.value.style.width = `${width}px`
-  canvasElement.value.style.height = `${height}px`
+  // 2. 设置 canvas 的 CSS 宽高与其属性值相匹配，这样浏览器能保留正确的宽高比
+  //    由于 CSS max-width/max-height 约束，canvas 会和 img 保持相同的显示尺寸
+  canvasElement.value.style.width = `${safeSize.width}px`
+  canvasElement.value.style.height = `${safeSize.height}px`
 
-  // 3. 完美的 1:1 像素映射：直接将相机的视椎体设置为图片的真实像素尺寸！
-  camera.left = -safeSize.width / 2
-  camera.right = safeSize.width / 2
-  camera.top = safeSize.height / 2
-  camera.bottom = -safeSize.height / 2
+  // 3. WebGL 相机设置为原图的逻辑尺寸，这样能 1:1 映射原图的每个像素
+  //    即使内部渲染分辨率被缩小（safeSize），相机仍能正确投影
+  camera.left = -width / 2
+  camera.right = width / 2
+  camera.top = height / 2
+  camera.bottom = -height / 2
   camera.updateProjectionMatrix()
 
-  // 4. 同时更新 PlaneGeometry 的尺寸，使其等于渲染分辨率
+  // 4. Plane 也设置为原图实际尺寸，UV 映射才能完全匹配纹理坐标
   mesh.geometry.dispose()
-  mesh.geometry = new THREE.PlaneGeometry(safeSize.width, safeSize.height)
+  mesh.geometry = new THREE.PlaneGeometry(width, height)
 
   renderWebGL()
+}
+
+// 同步 canvas 的显示尺寸与 img 完全一致，避免尺寸不匹配导致的裁剪或放大
+const syncCanvasDisplaySize = (imgElement: HTMLImageElement) => {
+  if (!canvasElement.value) return
+  const rect = imgElement.getBoundingClientRect()
+  if (rect.width > 0 && rect.height > 0) {
+    canvasElement.value.style.width = `${rect.width}px`
+    canvasElement.value.style.height = `${rect.height}px`
+  }
 }
 
 // ---------- 原生缩略图加载事件 ----------
@@ -152,7 +163,14 @@ const handleThumbLoad = () => {
   thumbLoaded.value = true
   imageError.value = false
   emit('zoomToFit')
-  nextTick(() => applyTransform())
+  nextTick(() => {
+    // 获取 img 元素的实际显示尺寸，同步到 canvas
+    const imgElements = document.querySelectorAll('.thumb-layer')
+    if (imgElements.length > 0 && imgElements[0] instanceof HTMLImageElement) {
+      syncCanvasDisplaySize(imgElements[0] as HTMLImageElement)
+    }
+    applyTransform()
+  })
 }
 
 const handleThumbError = () => {
@@ -215,6 +233,18 @@ const showImage = async (image: PhotoItem) => {
 
   // 1. 立即加载原生缩略图（利用浏览器缓存，瞬间显示）
   displayThumbSrc.value = thumbUrl
+  
+  // 当图片源改变时，也要重新设置 ResizeObserver
+  nextTick(() => {
+    const thumbImg = document.querySelector('.thumb-layer') as HTMLImageElement
+    if (thumbImg && typeof ResizeObserver !== 'undefined') {
+      if (resizeObserver) resizeObserver.disconnect()
+      resizeObserver = new ResizeObserver(() => {
+        syncCanvasDisplaySize(thumbImg)
+      })
+      resizeObserver.observe(thumbImg)
+    }
+  })
 
   // 2. 如果存在高清原图，在后台进行 WebGL 异步加载
   if (thumbUrl !== originalUrl) {
@@ -255,6 +285,13 @@ const showImage = async (image: PhotoItem) => {
       // 等待 Vue 将 display: none 移除后渲染，防止尺寸计算异常
       nextTick(() => {
         if (signal.aborted) return
+        
+        // 同步 canvas 尺寸与显示的 img 完全一致
+        const imgElements = document.querySelectorAll('.thumb-layer')
+        if (imgElements.length > 0 && imgElements[0] instanceof HTMLImageElement) {
+          syncCanvasDisplaySize(imgElements[0] as HTMLImageElement)
+        }
+        
         renderWebGL()
 
         // 执行原图交叉溶解（Crossfade）动画
@@ -578,10 +615,21 @@ watch(
   { deep: true, flush: 'sync' }
 )
 
+let resizeObserver: ResizeObserver | null = null
+
 onMounted(() => {
   initWebGL()
   if (props.currentImage) {
     showImage(props.currentImage)
+  }
+  
+  // 监听 img 元素尺寸变化，自动同步到 canvas
+  const thumbImg = document.querySelector('.thumb-layer') as HTMLImageElement
+  if (thumbImg && typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      syncCanvasDisplaySize(thumbImg)
+    })
+    resizeObserver.observe(thumbImg)
   }
 })
 
@@ -590,6 +638,7 @@ onUnmounted(() => {
   if (moveRAF) cancelAnimationFrame(moveRAF)
   if (touchMoveRAF) cancelAnimationFrame(touchMoveRAF)
   if (abortController) abortController.abort()
+  if (resizeObserver) resizeObserver.disconnect()
   disposeWebGLTexture()
   if (renderer) renderer.dispose()
 })
@@ -717,36 +766,39 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .image-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+  position: relative;
+  /* 这里由内部的 img 标签撑起实际尺寸 */
   transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
 }
 
-/* img 和 canvas 共用：让浏览器保留宽高比、不超出容器，不拉伸填满 */
+/* 可见的 img（缩略图）：正常显示并撑起容器尺寸 */
 .main-image-content {
-  position: absolute;
+  display: block;
   max-width: 100%;
-  max-height: 100%;
+  max-height: 100vh;
   width: auto;
   height: auto;
-  object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
 }
 
 .thumb-layer {
+  position: relative;
   z-index: 1;
 }
 
+/* canvas 覆盖在 img 上面，尺寸和位置与 img 完全一致 */
 .webgl-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 2;
+  display: block;
 }
 
 .zoom-cursor {
