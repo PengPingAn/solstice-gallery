@@ -122,6 +122,8 @@ const getSafeSize = (width: number, height: number, maxSize: number) => {
 const updateCanvasSize = (width: number, height: number, displayWidth?: number, displayHeight?: number) => {
   if (!canvasElement.value || !renderer || !camera || !mesh) return
 
+  console.log('[v0] updateCanvasSize:', { width, height, displayWidth, displayHeight })
+
   // 1. 计算高质量渲染分辨率，但保留与显示尺寸相同的宽高比
   //    这样 canvas 像素尺寸和 CSS 尺寸的宽高比就完全一致，无需额外缩放
   let renderWidth = width
@@ -132,6 +134,8 @@ const updateCanvasSize = (width: number, height: number, displayWidth?: number, 
     const displayAspect = displayWidth / displayHeight
     const imageAspect = width / height
     
+    console.log('[v0] displayAspect:', displayAspect, 'imageAspect:', imageAspect)
+
     // 确保渲染分辨率与显示尺寸的宽高比一致
     if (Math.abs(displayAspect - imageAspect) > 0.001) {
       if (displayAspect > imageAspect) {
@@ -144,11 +148,15 @@ const updateCanvasSize = (width: number, height: number, displayWidth?: number, 
     }
   }
   
+  console.log('[v0] renderSize:', { renderWidth, renderHeight })
+
   // 2. 计算最终的 safeSize，确保不超过最大纹理尺寸
   const safeSize = getSafeSize(renderWidth, renderHeight, maxTextureSize)
   canvasElement.value.width = safeSize.width
   canvasElement.value.height = safeSize.height
   renderer.setSize(safeSize.width, safeSize.height, false)
+
+  console.log('[v0] canvas pixels:', { width: safeSize.width, height: safeSize.height })
 
   // 3. 相机和 Plane 与 canvas 像素分辨率完全匹配
   camera.left = -safeSize.width / 2
@@ -160,15 +168,15 @@ const updateCanvasSize = (width: number, height: number, displayWidth?: number, 
   mesh.geometry.dispose()
   mesh.geometry = new THREE.PlaneGeometry(safeSize.width, safeSize.height)
 
-
-
   // 4. 设置 CSS 尺寸为显示尺寸
   if (displayWidth && displayHeight) {
     canvasElement.value.style.width = `${displayWidth}px`
     canvasElement.value.style.height = `${displayHeight}px`
+    console.log('[v0] canvas CSS:', { width: displayWidth, height: displayHeight })
   } else {
     canvasElement.value.style.width = ''
     canvasElement.value.style.height = ''
+    console.log('[v0] canvas CSS cleared')
   }
 
   renderWebGL()
@@ -180,6 +188,8 @@ const syncCanvasDisplaySize = (imgElement: HTMLImageElement, originalWidth: numb
   
   const imgWidth = imgElement.offsetWidth
   const imgHeight = imgElement.offsetHeight
+  
+  console.log('[v0] syncCanvasDisplaySize:', { imgWidth, imgHeight, originalWidth, originalHeight })
   
   if (imgWidth > 0 && imgHeight > 0) {
     // 根据 img 的显示尺寸来重新计算 canvas 的渲染和 CSS 尺寸
@@ -200,6 +210,7 @@ const handleThumbLoad = () => {
       // 如果原图已加载，用原图尺寸；否则用缩略图的原始尺寸
       const width = thumbImg.naturalWidth
       const height = thumbImg.naturalHeight
+      console.log('[v0] handleThumbLoad: thumb naturalSize:', { width, height }, 'offsetSize:', { w: thumbImg.offsetWidth, h: thumbImg.offsetHeight })
       if (width > 0 && height > 0) {
         syncCanvasDisplaySize(thumbImg, width, height)
       }
