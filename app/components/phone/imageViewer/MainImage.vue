@@ -128,17 +128,21 @@ const updateCanvasSize = (width: number, height: number) => {
   canvasElement.value.height = safeSize.height
   renderer.setSize(safeSize.width, safeSize.height, false)
 
-  // 2. 完美的 1:1 像素映射：直接将相机的视椎体设置为图片的真实像素尺寸！
-  // 这样 1 个 WebGL 单位就等于 1 个图片像素，完全避免任何比例换算带来的微小误差或剪切
-  camera.left = -width / 2
-  camera.right = width / 2
-  camera.top = height / 2
-  camera.bottom = -height / 2
+  // 2. 将 canvas 的 CSS 尺寸设置为原图宽高比，让浏览器用 CSS 来做缩放适配，
+  //    避免 canvas 被父容器强制拉伸/截剪。max-width/max-height 由 CSS 类控制。
+  canvasElement.value.style.width = `${width}px`
+  canvasElement.value.style.height = `${height}px`
+
+  // 3. 完美的 1:1 像素映射：直接将相机的视椎体设置为图片的真实像素尺寸！
+  camera.left = -safeSize.width / 2
+  camera.right = safeSize.width / 2
+  camera.top = safeSize.height / 2
+  camera.bottom = -safeSize.height / 2
   camera.updateProjectionMatrix()
 
-  // 3. 同时更新 PlaneGeometry 的尺寸，使其等于图片的真实像素尺寸
+  // 4. 同时更新 PlaneGeometry 的尺寸，使其等于渲染分辨率
   mesh.geometry.dispose()
-  mesh.geometry = new THREE.PlaneGeometry(width, height)
+  mesh.geometry = new THREE.PlaneGeometry(safeSize.width, safeSize.height)
 
   renderWebGL()
 }
@@ -716,18 +720,22 @@ onUnmounted(() => {
 }
 
 .image-wrapper {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
   transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
 }
 
+/* img 和 canvas 共用：让浏览器保留宽高比、不超出容器，不拉伸填满 */
 .main-image-content {
-  grid-area: 1 / 1;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
