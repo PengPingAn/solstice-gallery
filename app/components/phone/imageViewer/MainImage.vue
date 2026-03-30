@@ -128,22 +128,23 @@ const updateCanvasSize = (width: number, height: number) => {
   canvasElement.value.height = safeSize.height
   renderer.setSize(safeSize.width, safeSize.height, false)
 
-  // 2. 设置 canvas 的 CSS 宽高与其属性值相匹配，这样浏览器能保留正确的宽高比
-  //    由于 CSS max-width/max-height 约束，canvas 会和 img 保持相同的显示尺寸
-  canvasElement.value.style.width = `${safeSize.width}px`
-  canvasElement.value.style.height = `${safeSize.height}px`
-
-  // 3. WebGL 相机设置为原图的逻辑尺寸，这样能 1:1 映射原图的每个像素
-  //    即使内部渲染分辨率被缩小（safeSize），相机仍能正确投影
-  camera.left = -width / 2
-  camera.right = width / 2
-  camera.top = height / 2
-  camera.bottom = -height / 2
+  // 2. 关键：相机和 Plane 必须使用相同的坐标系！
+  //    使用 safeSize 作为逻辑坐标系，这样 renderer 像素 1:1 对应逻辑单位
+  //    纹理的 UV 映射会自动把原图内容正确缩放到 Plane 上
+  camera.left = -safeSize.width / 2
+  camera.right = safeSize.width / 2
+  camera.top = safeSize.height / 2
+  camera.bottom = -safeSize.height / 2
   camera.updateProjectionMatrix()
 
-  // 4. Plane 也设置为原图实际尺寸，UV 映射才能完全匹配纹理坐标
+  // 3. Plane 尺寸与相机视椎体完全匹配
   mesh.geometry.dispose()
-  mesh.geometry = new THREE.PlaneGeometry(width, height)
+  mesh.geometry = new THREE.PlaneGeometry(safeSize.width, safeSize.height)
+
+  // 4. 不设置固定的 CSS 宽高，让 syncCanvasDisplaySize 来同步
+  //    这里只清除可能残留的内联样式
+  canvasElement.value.style.width = ''
+  canvasElement.value.style.height = ''
 
   renderWebGL()
 }
@@ -152,9 +153,15 @@ const updateCanvasSize = (width: number, height: number) => {
 const syncCanvasDisplaySize = (imgElement: HTMLImageElement) => {
   if (!canvasElement.value) return
   const rect = imgElement.getBoundingClientRect()
+  console.log('[v0] syncCanvasDisplaySize called:', {
+    imgNaturalSize: { w: imgElement.naturalWidth, h: imgElement.naturalHeight },
+    imgDisplaySize: { w: rect.width, h: rect.height },
+    canvasAttrSize: { w: canvasElement.value.width, h: canvasElement.value.height },
+  })
   if (rect.width > 0 && rect.height > 0) {
     canvasElement.value.style.width = `${rect.width}px`
     canvasElement.value.style.height = `${rect.height}px`
+    console.log('[v0] canvas CSS size set to:', rect.width, 'x', rect.height)
   }
 }
 
@@ -264,6 +271,7 @@ const showImage = async (image: PhotoItem) => {
       if (signal.aborted || !img) return
 
       // 更新画布尺寸为原图的物理分辨率，并重新计算相机比例！
+      console.log('[v0] Original image loaded:', img.naturalWidth, 'x', img.naturalHeight)
       updateCanvasSize(img.naturalWidth, img.naturalHeight)
 
       originalTexture = new THREE.Texture(img)
